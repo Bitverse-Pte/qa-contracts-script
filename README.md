@@ -1,3 +1,8 @@
+### QA合约配置项目路径研发部署的合约地址等信息：
+``` 
+https://github.com/teleport-network/Contracts/tree/upgrade/Teleport_QA
+``` 
+
 ### 目录：
 ``` 
 ├── contracts 合约
@@ -20,4 +25,15 @@ export PACKET_ADDRESS=0xf77f90a902a5cb5b0e1ade83b2e8c5298a26be0a
 export ENDPOINT_ADDRESS=0xc6504d78a1da561adbb8d34e2d9f7b2e8b255bc7
 export EXECUTE_ADDRESS=0xee3ff0ca55e699a2722545a6b05146d135b4b33b
 ```
-
+### 示例脚本
+``` 
+流通性查询 
+原evm
+npx hardhat queryBindingsEvm --endpoint 0xe4916fd50499601dfe4fd2b40ee6d93a8035fcab  --token 0x2b2454ad0c2142bd02ff38d8728c022a4a90feb7 --network rinkeby
+原telepor
+npx hardhat queryBindingsTp --endpoint 0x0000000000000000000000000000000020000002 --token 0x0000000000000000000000000000000000000000 --network telepor
+获取交易凭证
+npx hardhat getHash --hash 0x8dcda7e770cc23f2e441bf12ab9d8c1753870c59be3d5eb1461c435ea2392c67 --network teleport
+执行交易 原transfer替换endpoint合约
+npx hardhat rTransfer --tokenaddress 0x0000000000000000000000000000000000000000 --receiver 0x68949B0eF5dE6087c64947bcA6c749e89B6a8bD9 --amount 1 --dstchain rinkeby --fees 0 --endpoint 0x0000000000000000000000000000000020000002 --network teleport
+``` 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./IERC20Test.sol";
+import "../../token/erc20/IERC20Test.sol";
 
 contract TestToken is ERC20, IERC20Test, Ownable {
 

@@ -77,11 +77,11 @@ task("rTransfer", "Transfer token")
     .addParam("receiver", "receiver address")
     .addParam("amount", "transfer amount")
     .addParam("dstchain", "dst chain name")
-    .addParam("feeamount", "relay fee token address")
-    .addParam("endpointAddress", "endpoint 合约地址")
+    .addParam("fees", "relay fee")
+    .addParam("endpoint", "endpoint 合约地址")
     .setAction(async (taskArgs, hre) => {
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
-        const endpoint = await endpointFactory.attach("endpointAddress")
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
         let crossChainData = {
             dstChain: taskArgs.dstchain,
@@ -96,7 +96,7 @@ task("rTransfer", "Transfer token")
 
         let fee = {
             tokenAddress: taskArgs.tokenaddress,
-            amount: taskArgs.feeamount,
+            amount: taskArgs.fees,
         }
 
         let baseToken = hre.ethers.utils.parseEther("0")
@@ -145,10 +145,8 @@ task("qGasFee", "查询交易使用的gas fee")
             if (transactionReceipt) {
                 let fee = transactionReceipt.gasUsed * Number(transaction.gasPrice)
 
-                let fee1 =  transactionReceipt.cumulativeGasUsed
-
                 console.log("transactionReceipt.gasUsed * Number(transaction.gasPrice): \n", fee, fee / 1e18)
-                console.log("transactionReceipt.cumulativeGasUsed: \n", fee1, fee1 / 1e18)
+                console.log("transactionReceipt.cumulativeGasUsed: \n", transactionReceipt.cumulativeGasUsed)
 
                 console.log(`%transactionReceipt:`, transactionReceipt)
                 if (transactionReceipt.status === true) {
@@ -348,13 +346,42 @@ task("mToken", "Mint Token")
 
 task("queryBindingsEvm", "query ERC20 token trace")
     .addParam("token", "ERC20 contract address")
-    .addParam("endpointAddress", "endpoint合约地址")
+    .addParam("endpoint", "endpoint合约地址 ")
     .setAction(async (taskArgs, hre) => {
         const endpointFactory = await hre.ethers.getContractFactory("contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint")
-        const endpoint = await endpointFactory.attach(taskArgs.endpointAddress)
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
         let res = await endpoint.bindings(taskArgs.token)
         console.log(await res)
     })
+
+task("queryBindingsTp", "query ERC20 token trace")
+    .addParam("token", "ERC20 contract address")
+    .addParam("endpoint", "endpoint合约地址 ")
+    .setAction(async (taskArgs, hre) => {
+        const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/01-teleport/core/endpoint/Endpoint.sol:Endpoint')
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
+
+        let res = await endpoint.bindings(taskArgs.token)
+        console.log(await res)
+    })
+
+task("getHash","获取交易凭证信息")
+    .addParam("hash", "交易hash")
+    .setAction(async(taskArgs,hre)=>{
+        let transaction = await hre.web3.eth.getTransaction(taskArgs.hash)
+
+        if (transaction.blockNumber!) {
+            let transactionReceipt = await hre.web3.eth.getTransactionReceipt(taskArgs.hash)
+            let block = await hre.web3.eth.getBlock(transaction.blockNumber!)
+            console.log("block timestamp: ", block.timestamp)
+            console.log("blockHash: ", transaction.blockHash)
+            console.log("blockNumber: ", transaction.blockNumber)
+            console.log("status: ", transactionReceipt.status)
+            console.log("cumulativeGasUsed: ", transactionReceipt.cumulativeGasUsed)
+            console.log("contractAddress: ", transactionReceipt.contractAddress)
+            console.log("transactionReceipt: ",transactionReceipt)
+        }
+    });
 
 module.exports = {}
