@@ -1,4 +1,4 @@
-### QA合约配置项目路径研发部署的合约地址等信息：
+### teleport-bridge合约配置项目地址信息（Contracts）：
 ``` 
 https://github.com/teleport-network/Contracts/tree/upgrade/Teleport_QA
 ``` 
