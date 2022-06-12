@@ -46,7 +46,7 @@ task("qBalances", "查询余额或者代币余额")
 
 task("qAllowance", "查询允许调用的额度")
     .addParam("token", "代币地址")
-    .addParam("transfer", "被授权的transfer合约地址")
+    .addParam("transfer", "被授权的transfer合约地址,取新的ENDPOINT_ADDRESS合约地址")
     .addParam("wallet", "授权的钱包地址")
     .setAction(async (taskArgs, hre) => {
         const tokenFactory = await hre.ethers.getContractFactory('TestERC20MinterBurnerDecimals')
@@ -59,7 +59,7 @@ task("qAllowance", "查询允许调用的额度")
 
 task("rApprove", "授权调用额度")
     .addParam("token", "代币地址")
-    .addParam("transfer", "被授权的transfer合约地址")
+    .addParam("transfer", "被授权的transfer合约地址，取新的ENDPOINT_ADDRESS合约地址")
     .addParam("amount", "金额")
     .setAction(async (taskArgs, hre) => {
         const tokenFactory = await hre.ethers.getContractFactory('TestERC20MinterBurnerDecimals')
