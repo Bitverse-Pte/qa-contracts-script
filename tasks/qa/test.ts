@@ -4,6 +4,25 @@ import {task, types} from "hardhat/config"
 //取环境变量值，如：export ENDPOINT_ADDRESS=0xc6504d78a1da561adbb8d34e2d9f7b2e8b255bc7
 const ENDPOINT_ADDRESS = process.env.ENDPOINT_ADDRESS
 
+task("qDecimals", "查询ERC20合约的decimal")
+    .addParam("token", "代币地址")
+    .setAction(async (taskArgs, hre) => {
+        // 链接合约
+        const tokenFactory = await hre.ethers.getContractFactory('TestERC20MinterBurnerDecimals')
+        const token = await tokenFactory.attach(taskArgs.token)
+
+        const name = await token.name()
+        const decimals = await token.decimals()
+        const symbol = await token.symbol()
+        const totalSupply = await token.totalSupply()
+
+        console.log("token name: ", name)
+        console.log("token decimals: ", decimals)
+        console.log("token symbol: ", symbol)
+        console.log("token totalSupply: ", totalSupply.toString())
+    });
+
+
 task("qBlock", "根据blockNumber 查询block")
     .addParam("no", "block number")
     .setAction(async (taskArgs, hre) => {
@@ -46,26 +65,27 @@ task("qBalances", "查询余额或者代币余额")
 
 task("qAllowance", "查询允许调用的额度")
     .addParam("token", "代币地址")
-    .addParam("transfer", "被授权的transfer合约地址,取新的ENDPOINT_ADDRESS合约地址")
+    .addParam("endpoint", "被授权的endpoint合约地址")
     .addParam("wallet", "授权的钱包地址")
     .setAction(async (taskArgs, hre) => {
         const tokenFactory = await hre.ethers.getContractFactory('TestERC20MinterBurnerDecimals')
         const token = await tokenFactory.attach(taskArgs.token)
 
-        let allowances = (await token.allowance(taskArgs.wallet, taskArgs.transfer))
+        let allowances = (await token.allowance(taskArgs.wallet, taskArgs.endpoint))
+
         console.log("allowances: ", allowances)
         console.log("time: ", (new Date()).valueOf())
     });
 
 task("rApprove", "授权调用额度")
     .addParam("token", "代币地址")
-    .addParam("transfer", "被授权的transfer合约地址，取新的ENDPOINT_ADDRESS合约地址")
+    .addParam("endpoint", "被授权的endpoint合约地址")
     .addParam("amount", "金额")
     .setAction(async (taskArgs, hre) => {
         const tokenFactory = await hre.ethers.getContractFactory('TestERC20MinterBurnerDecimals')
         const token = await tokenFactory.attach(taskArgs.token)
 
-        let transaction = await token.approve(taskArgs.transfer, taskArgs.amount)
+        let transaction = await token.approve(taskArgs.endpoint, taskArgs.amount)
 
         console.log("approve txHash: ", transaction.hash)
         console.log("time: ", (new Date()).valueOf())
@@ -73,19 +93,19 @@ task("rApprove", "授权调用额度")
 
 
 task("rTransfer", "Transfer token")
-    .addParam("tokenaddress", "ERC20 contract address")
+    .addParam("token", "源链 ERC20 contract address")
     .addParam("receiver", "receiver address")
     .addParam("amount", "transfer amount")
-    .addParam("dstchain", "dst chain name")
-    .addParam("fees", "relay fee")
+    .addParam("dest", "dest chain name")
+    .addParam("fee", "relay fee","0",types.string,true)
     .addParam("endpoint", "endpoint 合约地址")
     .setAction(async (taskArgs, hre) => {
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
         const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
         let crossChainData = {
-            dstChain: taskArgs.dstchain,
-            tokenAddress: taskArgs.tokenaddress,
+            dstChain: taskArgs.dest,
+            tokenAddress: taskArgs.token,
             receiver: taskArgs.receiver,
             amount: taskArgs.amount,
             contractAddress: "0x0000000000000000000000000000000000000000",
@@ -95,8 +115,8 @@ task("rTransfer", "Transfer token")
         }
 
         let fee = {
-            tokenAddress: taskArgs.tokenaddress,
-            amount: taskArgs.fees,
+            tokenAddress: taskArgs.token,
+            amount: taskArgs.fee,
         }
 
         let baseToken = hre.ethers.utils.parseEther("0")
@@ -108,8 +128,6 @@ task("rTransfer", "Transfer token")
             baseToken = baseToken.add(hre.ethers.utils.parseEther(fee.amount))
         }
 
-        crossChainData.amount = hre.ethers.utils.parseEther(crossChainData.amount)
-        console.log(crossChainData.amount)
         if (baseToken.gt(hre.ethers.utils.parseEther("0"))) {
             let res = await endpoint.crossChainCall(
                 crossChainData,
@@ -126,6 +144,7 @@ task("rTransfer", "Transfer token")
                 fee
             )
             let rep= await res.wait()
+
             console.log("blockHash: ",rep.blockHash)
             console.log("transactionHash: ",rep.transactionHash)
             console.log("time: ", (new Date()).valueOf())

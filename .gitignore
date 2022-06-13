@@ -7,7 +7,7 @@ typechain
 .idea
 yarn-error.log
 yarn.lock
-
+hardhat.config.ts
 
 #Hardhat files
 cache

@@ -76,8 +76,8 @@ module.exports = {
       gasPrice: 1500000000,
       chainId: 4,
       gas: 5000000,
-      accounts:['24ad33fb88a6c2347ec90178c881969e59571c6ad8cc0f597e7c7d87354df3f8']
-      // accounts:['8f14df1da1a318bec99800b72c5031e4fdc4ec017f00ab9659339ecb0193120e']
+      // accounts:['24ad33fb88a6c2347ec90178c881969e59571c6ad8cc0f597e7c7d87354df3f8']
+      accounts:['8f14df1da1a318bec99800b72c5031e4fdc4ec017f00ab9659339ecb0193120e']
     },
     bsctest: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
