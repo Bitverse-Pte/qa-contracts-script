@@ -20,6 +20,7 @@ task("qDecimals", "查询ERC20合约的decimal")
         console.log("token decimals: ", decimals)
         console.log("token symbol: ", symbol)
         console.log("token totalSupply: ", totalSupply.toString())
+        console.log("time: ", (new Date()).valueOf())
     });
 
 
@@ -121,11 +122,11 @@ task("rTransfer", "Transfer token")
 
         let baseToken = hre.ethers.utils.parseEther("0")
         if (crossChainData.tokenAddress == "0x0000000000000000000000000000000000000000") {
-            baseToken = baseToken.add(hre.ethers.utils.parseEther(crossChainData.amount))
+            baseToken = baseToken.add(crossChainData.amount)
         }
 
         if (fee.tokenAddress == "0x0000000000000000000000000000000000000000") {
-            baseToken = baseToken.add(hre.ethers.utils.parseEther(fee.amount))
+            baseToken = baseToken.add(fee.amount)
         }
 
         if (baseToken.gt(hre.ethers.utils.parseEther("0"))) {
