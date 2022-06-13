@@ -1,3 +1,10 @@
+### 初始化流程
+``` 
+1,initDatas.py初始化脚本，更新研发合约代码
+2,npm install(或yarn install)首次使用需要拉取依赖
+3,npx hardhat compile （最好先clean）编译
+``` 
+
 ### teleport-bridge合约配置项目地址信息（Contracts）：
 ``` 
 https://github.com/teleport-network/Contracts/tree/upgrade/Teleport_QA
@@ -6,6 +13,8 @@ https://github.com/teleport-network/Contracts/tree/upgrade/Teleport_QA
 ### 目录：
 ``` 
 ├── contracts 合约
+│   ├── 非qa   研发原始合约代码
+│   └── qa    测试自写合约
 ├── scripts   脚本
 ├── tasks     任务
 │   ├── dev   研发原始任务用于参考
@@ -13,8 +22,8 @@ https://github.com/teleport-network/Contracts/tree/upgrade/Teleport_QA
 └── test  test 
 ``` 
 
-### deployall task 部署合约
-``` 合约地址本地调试
+### deployall task 部署合约获取合约地址（合约地址本地调试）
+``` 
 export CLIENT_STATE_CODEC_ADDRESS=0xd33941b4163d82460bd9aa885541d721f04c087e
 export CONSENSUS_STATE_CODEC_ADDRESS=0x1f0b27094410d0c49aa2153c5b1e06390c526849
 export PROOF_CODEC_ADDRESS=0xd3ecda23917f060da4e7da835fd0d362a9195731
@@ -30,8 +39,8 @@ export EXECUTE_ADDRESS=0xee3ff0ca55e699a2722545a6b05146d135b4b33b
 流通性查询 
 原evm
 npx hardhat queryBindingsEvm --endpoint 0xe4916fd50499601dfe4fd2b40ee6d93a8035fcab  --token 0x2b2454ad0c2142bd02ff38d8728c022a4a90feb7 --network rinkeby
-原telepor
-npx hardhat queryBindingsTp --endpoint 0x0000000000000000000000000000000020000002 --token 0x0000000000000000000000000000000000000000 --network telepor
+原teleport
+npx hardhat queryBindingsTp --endpoint 0x0000000000000000000000000000000020000002 --token 0x0000000000000000000000000000000000000000 --network teleport
 获取交易凭证
 npx hardhat getHash --hash 0x8dcda7e770cc23f2e441bf12ab9d8c1753870c59be3d5eb1461c435ea2392c67 --network teleport
 执行交易 原transfer替换endpoint合约

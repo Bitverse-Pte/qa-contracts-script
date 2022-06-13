@@ -116,13 +116,19 @@ task("rTransfer", "Transfer token")
                 fee,
                 {value: baseToken}
             )
-            console.log(await res.wait())
+            let rep= await res.wait()
+            console.log("blockHash: ",rep.blockHash)
+            console.log("transactionHash: ",rep.transactionHash)
+            console.log("time: ", (new Date()).valueOf())
         } else {
             let res = await endpoint.crossChainCall(
                 crossChainData,
                 fee
             )
-            console.log(await res.wait())
+            let rep= await res.wait()
+            console.log("blockHash: ",rep.blockHash)
+            console.log("transactionHash: ",rep.transactionHash)
+            console.log("time: ", (new Date()).valueOf())
         }
     })
 
