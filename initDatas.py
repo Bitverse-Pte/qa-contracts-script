@@ -1,7 +1,7 @@
 import sh
 
 
-# 下载abi文件
+# 下载Contracts文件
 def getContracts():
     # 创建文件夹
     # 先删除
