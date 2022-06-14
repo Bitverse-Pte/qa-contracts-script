@@ -45,4 +45,12 @@ npx hardhat queryBindingsTp --endpoint 0x000000000000000000000000000000002000000
 npx hardhat getHash --hash 0x8dcda7e770cc23f2e441bf12ab9d8c1753870c59be3d5eb1461c435ea2392c67 --network teleport
 执行交易 原transfer替换endpoint合约
 npx hardhat rTransfer --tokenaddress 0x0000000000000000000000000000000000000000 --receiver 0x68949B0eF5dE6087c64947bcA6c749e89B6a8bD9 --amount 1 --dstchain rinkeby --fees 0 --endpoint 0x0000000000000000000000000000000020000002 --network teleport
+
+非teleport设置风控
+/**设置风控*/
+npx hardhat enLimits --endpoint 0xfe30de51bdb9b9784f1a05d5531d221bf66eaf70 --token 0x44de7218b9f7a205084466d9ad7f438ec30dc192 --tp 60 --tb 200000 --max 500 --min 100 --network bsctest
+/**查询风控信息*/
+npx hardhat qLimits --endpoint 0xfe30de51bdb9b9784f1a05d5531d221bf66eaf70 --token 0x44de7218b9f7a205084466d9ad7f438ec30dc192 --network bsctest
+/**取消风控*/
+npx hardhat unLimits --endpoint 0xfe30de51bdb9b9784f1a05d5531d221bf66eaf70 --token 0x44de7218b9f7a205084466d9ad7f438ec30dc192 --network bsctest
 ``` 
