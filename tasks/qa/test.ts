@@ -313,29 +313,29 @@ task("rSend", "Send Proxy")
     })
 
 task("qLimits", "查询风险控制")
-    .addParam("transfer", "transfer合约地址")
+    .addParam("endpoint", "endpoint 合约地址")
     .addParam("token", "待查询的token合约地址")
     .setAction(async (taskArgs, hre) => {
-        const transferFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
-        const transfer = await transferFactory.attach(taskArgs.transfer)
+        const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
-        const res = await transfer.limits(taskArgs.token)
+        const res = await endpoint.limits(taskArgs.token)
 
         console.log(res)
     })
 
 task("enLimits", "设置风险控制")
-    .addParam("transfer", "transfer合约地址")
+    .addParam("endpoint", "endpoint 合约地址")
     .addParam("token", "待设置的token合约地址")
     .addParam("tp", "timePeriod 表示时间窗口的长度 seconds")
     .addParam("tb", "timeBasedLimit 时间窗内总限额")
     .addParam("max", "maxAmount 单比最大金额")
     .addParam("min", "minAmount 单比最小金额")
     .setAction(async (taskArgs, hre) => {
-        const transferFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
-        const transfer = await transferFactory.attach(taskArgs.transfer)
+        const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
-        const res = await transfer.enableTimeBasedSupplyLimit(
+        const res = await endpoint.enableTimeBasedSupplyLimit(
             taskArgs.token,
             taskArgs.tp,
             taskArgs.tb,
@@ -346,13 +346,13 @@ task("enLimits", "设置风险控制")
     })
 
 task("unLimits", "取消风险控制")
-    .addParam("transfer", "transfer合约地址")
+    .addParam("endpoint", "endpoint 合约地址")
     .addParam("token", "待取消的token合约地址")
     .setAction(async (taskArgs, hre) => {
-        const transferFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
-        const transfer = await transferFactory.attach(taskArgs.transfer)
+        const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
-        const res = await transfer.disableTimeBasedSupplyLimit(taskArgs.token)
+        const res = await endpoint.disableTimeBasedSupplyLimit(taskArgs.token)
 
         console.log(res)
     })
