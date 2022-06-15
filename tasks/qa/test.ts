@@ -169,12 +169,16 @@ task("qGasFee", "查询交易使用的gas fee")
             let transactionReceipt = await hre.web3.eth.getTransactionReceipt(taskArgs.hash)
 
             if (transactionReceipt) {
+
                 let fee = transactionReceipt.gasUsed * Number(transaction.gasPrice)
+                let fee1 = transactionReceipt.gasUsed * transactionReceipt.effectiveGasPrice
 
-                console.log("transactionReceipt.gasUsed * Number(transaction.gasPrice): \n", fee, fee / 1e18)
                 console.log("transactionReceipt.cumulativeGasUsed: \n", transactionReceipt.cumulativeGasUsed)
+                console.log("transactionReceipt.gasUsed * Number(transaction.gasPrice): \n", fee, fee / 1e18)
+                console.log("transactionReceipt.gasUsed * transactionReceipt.effectiveGasPrice: \n",fee1, fee1/1e18)
 
-                console.log(`%transactionReceipt:`, transactionReceipt)
+
+                // console.log(`%transactionReceipt:`, transactionReceipt)
                 if (transactionReceipt.status === true) {
                     console.log(`%c源链交易成功！`, "color:green")
                 } else {
