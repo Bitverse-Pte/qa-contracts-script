@@ -326,6 +326,8 @@ task("qLimits", "查询风险控制")
         const res = await endpoint.limits(taskArgs.token)
 
         console.log(res)
+        console.log("time: ", (new Date()).valueOf())
+
     })
 
 task("enLimits", "设置风险控制")
@@ -347,6 +349,8 @@ task("enLimits", "设置风险控制")
             taskArgs.min,
         )
         console.log(res)
+        console.log("time: ", (new Date()).valueOf())
+
     })
 
 task("unLimits", "取消风险控制")
@@ -372,6 +376,8 @@ task("mToken", "Mint Token")
 
         let tx = await token.mint(taskArgs.to, taskArgs.amount)
         console.log(tx)
+        console.log("time: ", (new Date()).valueOf())
+
     });
 
 task("queryBindingsEvm", "query ERC20 token trace")
@@ -383,6 +389,8 @@ task("queryBindingsEvm", "query ERC20 token trace")
 
         let res = await endpoint.bindings(taskArgs.token)
         console.log(await res)
+        console.log("time: ", (new Date()).valueOf())
+
     })
 
 task("queryBindingsTp", "query ERC20 token trace")
@@ -394,6 +402,8 @@ task("queryBindingsTp", "query ERC20 token trace")
 
         let res = await endpoint.bindings(taskArgs.token)
         console.log(await res)
+        console.log("time: ", (new Date()).valueOf())
+
     })
 
 task("getHash","获取交易凭证信息")
@@ -412,6 +422,8 @@ task("getHash","获取交易凭证信息")
             console.log("contractAddress: ", transactionReceipt.contractAddress)
             console.log("transactionReceipt: ",transactionReceipt)
         }
+        console.log("time: ", (new Date()).valueOf())
+
     });
 
 module.exports = {}
