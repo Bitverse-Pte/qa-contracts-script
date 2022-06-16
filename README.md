@@ -4,10 +4,19 @@
 2,npm install(或yarn install)首次使用需要拉取依赖
 3,npx hardhat compile （最好先clean）编译
 ``` 
-
-### teleport-bridge合约配置项目地址信息（Contracts）：
+### 注释npm 代理
+``` 
+npm install -g nrm
+nrm ls
+nrm use taobao
+``` 
 ``` 
 https://github.com/teleport-network/Contracts/tree/upgrade/Teleport_QA
+``` 
+
+### teleport-bridge：
+```
+你说的 
 ``` 
 
 ### 目录：
@@ -42,7 +51,7 @@ npx hardhat queryBindingsEvm --endpoint 0xe4916fd50499601dfe4fd2b40ee6d93a8035fc
 原teleport
 npx hardhat queryBindingsTp --endpoint 0x0000000000000000000000000000000020000002 --token 0x0000000000000000000000000000000000000000 --network teleport
 获取交易凭证
-npx hardhat getHash --hash 0x8dcda7e770cc23f2e441bf12ab9d8c1753870c59be3d5eb1461c435ea2392c67 --network teleport
+npx hardhat getHash --hash 0x7cce144661213a07405cf2afed2857804a02e79013452a9a062b44dc01d3d5b9 --network teleport
 执行交易 原transfer替换endpoint合约
 npx hardhat rTransfer --tokenaddress 0x0000000000000000000000000000000000000000 --receiver 0x68949B0eF5dE6087c64947bcA6c749e89B6a8bD9 --amount 1 --dstchain rinkeby --fees 0 --endpoint 0x0000000000000000000000000000000020000002 --network teleport
 
