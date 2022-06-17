@@ -256,11 +256,8 @@ task("rSend", "Send Proxy")
     .addParam("dest", "目标链名称")
     .addParam("rccrelayerchain", "relay chain name", "", types.string, true)
 
-    // .addParam("refunder", "refunder address")
-    // .addParam("destchain", "destChain name")
     .addParam("fee", "需要消耗的fee")
-
-    .addParam("multicall", "multi_call 合约地址")
+    .addParam("endpoint", "endpoint 合约地址")
 
     // .addParam("relayer_fee_address", "relay fee token address")
     .setAction(async (taskArgs, hre) => {
