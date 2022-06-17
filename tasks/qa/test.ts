@@ -282,10 +282,9 @@ task("rSend", "Send Proxy")
         let destchain = "teleport"
         let multiCallData = await proxy.send(refunder, destchain,
             ERC20TransferData, rccTransfer, taskArgs.fee)
-        // console.log("multiCallData: ",multiCallData)
 
-        const multiCallFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
-        const multiCall = await multiCallFactory.attach(taskArgs.multicall)
+        const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
         let res: any
         let relayer_fee_amount = 0
@@ -297,7 +296,7 @@ task("rSend", "Send Proxy")
                 tokenAddress: "0x0000000000000000000000000000000000000000",
                 amount: relayer_fee_amount,
             }
-            res = await multiCall.crossChainCall(multiCallData, fee, {value: taskArgs.amount})
+            res = await endpoint.crossChainCall(multiCallData, fee, {value: taskArgs.amount})
         } else {
             console.log("transfer erc20")
 
@@ -305,10 +304,9 @@ task("rSend", "Send Proxy")
                 tokenAddress: relayer_fee_address,
                 amount: relayer_fee_amount,
             }
-            res = await multiCall.crossChainCall(multiCallData, fee)
+            res = await endpoint.crossChainCall(multiCallData, fee)
 
         }
-        // console.log(res)
         console.log("tx hash: ", res.hash)
         console.log("time: ", (new Date()).valueOf())
     })
