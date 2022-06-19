@@ -262,7 +262,7 @@ task("rSend", "Send Proxy")
     .setAction(async (taskArgs, hre) => {
         const ProxyFactory = await hre.ethers.getContractFactory('Proxy')
         const proxy = await ProxyFactory.attach(taskArgs.proxy)
-
+        console.log("proxy:",taskArgs.proxy)
         let agentData = {
             refundAddress: taskArgs.receiver, // refund address on relay chain
             dstChain :taskArgs.dest, // dst chain, not relay chain
@@ -270,16 +270,17 @@ task("rSend", "Send Proxy")
             amount :taskArgs.amount,// amount to send, decimal precision should be same as srcChain
             feeAmount :taskArgs.fee, // second hop fee amount, take from amount, decimal precision should be same as srcChain
             receiver :taskArgs.receiver, // token receiver on dst chain, not relay chain
-            //callbackAddress :callbackAddress, // first hop ack callback address
-            //feeOption :feeOption,
+            callbackAddress :taskArgs.agent, // first hop ack callback address
+            feeOption :222,
         }
-
+        console.log("agentData:",agentData)
+        let refunder = taskArgs.receiver
         let destchain = "teleport"
         let multiCallData = await proxy.genCrossChainData(agentData)
-
+        console.log("multiCallData:",multiCallData)
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
         const endpoint = await endpointFactory.attach(taskArgs.endpoint)
-
+        console.log("endpoint:",taskArgs.endpoint)
         let res: any
         let relayer_fee_amount = 0
         let relayer_fee_address = taskArgs.token
