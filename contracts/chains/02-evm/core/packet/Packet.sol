@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.12;
 
 import "../../../../libraries/utils/Bytes.sol";
 import "../../../../libraries/utils/Strings.sol";
@@ -54,8 +54,6 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
     // key: bytes($dstChain/$seqence)
     // TBD: delete acked packet fee
     mapping(bytes => PacketTypes.Fee) public packetFees;
-
-    PacketTypes.Packet public latestPacket;
 
     // two hops packet fee remaining
     mapping(address => uint256) public fee2HopsRemaining;
@@ -189,14 +187,10 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
         Height.Data calldata height
     ) external nonReentrant whenNotPaused onlyAuthorizee(RELAYER_ROLE) {
         require(address(clientManager.client()) != address(0), "invalid client");
-
         PacketTypes.Packet memory packet = abi.decode(packetBytes, (PacketTypes.Packet));
-        latestPacket = packet;
-
         require(packet.dstChain.equals(chainName), "invalid dstChain");
         bytes memory packetReceiptKey = bytes(commonUniquePath(packet.srcChain, packet.sequence));
         require(!receipts[packetReceiptKey], "packet has been received");
-
         bytes memory packetCommitment = Bytes.fromBytes32(sha256(packetBytes));
         _verifyPacketCommitment(
             _msgSender(),
@@ -207,22 +201,17 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
             height,
             packetCommitment
         );
-
         receipts[packetReceiptKey] = true;
         emit PacketReceived(packet);
-
         PacketTypes.Acknowledgement memory ack;
         ack.relayer = msg.sender.addressToString();
         ack.feeOption = packet.feeOption;
-
         if (packet.transferData.length == 0 && packet.callData.length == 0) {
             ack.code = 1;
-            // ack.result = "";
             ack.message = "empty pcaket data";
             _writeAcknowledgement(packet, ack);
             return;
         }
-
         if (packet.transferData.length > 0) {
             try endpoint.onRecvPacket(packet) returns (uint64 _code, bytes memory _result, string memory _message) {
                 ack.code = _code;
@@ -234,34 +223,24 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
                 }
             } catch {
                 ack.code = 2;
-                // ack.result = "";
                 ack.message = "execute transfer data failed";
                 _writeAcknowledgement(packet, ack);
                 return;
             }
         }
-
         if (packet.callData.length > 0) {
             PacketTypes.CallData memory callData = abi.decode(packet.callData, (PacketTypes.CallData));
             (bool success, bytes memory res) = execute.execute(callData);
             if (!success) {
                 ack.code = 2;
-                // ack.result = "";
                 ack.message = "execute call data failed";
                 _writeAcknowledgement(packet, ack);
                 return;
             }
-            // ack.code = 0;
             ack.result = res;
-            // ack.message = "";
             _writeAcknowledgement(packet, ack);
             return;
         }
-
-        // ack.code = 0;
-        // ack.result = "";
-        // ack.message = "";
-
         _writeAcknowledgement(packet, ack);
         return;
     }
@@ -283,7 +262,8 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
 
     /**
      * @notice _writeAcknowledgement is called by a module in order to send back a ack message
-     * todo
+     * @param packet xibc packet
+     * @param ack acknowledgement to write
      */
     function _writeAcknowledgement(PacketTypes.Packet memory packet, PacketTypes.Acknowledgement memory ack) private {
         bytes memory ackBytes = abi.encode(ack);
@@ -455,14 +435,6 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
     }
 
     /**
-     * @notice get latest packet
-     * @return returns latest packet
-     */
-    function getLatestPacket() external view override returns (PacketTypes.Packet memory) {
-        return latestPacket;
-    }
-
-    /**
      * @dev Pauses all cross-chain transfers.
      *
      * Requirements:
@@ -490,7 +462,7 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
      *  @param sequence sequence
      */
     function commonUniquePath(string memory chain, uint64 sequence) internal pure returns (string memory) {
-        return Strings.strConcat(Strings.strConcat(chain, "/"), Strings.uint642str(sequence));
+        return string.concat(chain, "/", Strings.uint642str(sequence));
     }
 
     /**
@@ -504,20 +476,7 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
         string memory dstChain,
         uint64 sequence
     ) internal pure returns (string memory) {
-        return
-            Strings.strConcat(
-                Strings.strConcat(
-                    Strings.strConcat(
-                        Strings.strConcat(
-                            "commitments/",
-                            Strings.strConcat(Strings.strConcat(srcChain, "/"), dstChain)
-                        ),
-                        "/sequences"
-                    ),
-                    "/"
-                ),
-                Strings.uint642str(sequence)
-            );
+        return string.concat("commitments/", srcChain, "/", dstChain, "/sequences/", Strings.uint642str(sequence));
     }
 
     /**
@@ -531,16 +490,6 @@ contract Packet is Initializable, OwnableUpgradeable, IPacket, PausableUpgradeab
         string memory dstChain,
         uint64 sequence
     ) internal pure returns (string memory) {
-        return
-            Strings.strConcat(
-                Strings.strConcat(
-                    Strings.strConcat(
-                        Strings.strConcat("acks/", Strings.strConcat(Strings.strConcat(srcChain, "/"), dstChain)),
-                        "/sequences"
-                    ),
-                    "/"
-                ),
-                Strings.uint642str(sequence)
-            );
+        return string.concat("acks/", srcChain, "/", dstChain, "/sequences/", Strings.uint642str(sequence));
     }
 }

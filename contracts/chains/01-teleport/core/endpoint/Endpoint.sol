@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.12;
 
 import "../../../../libraries/utils/Bytes.sol";
 import "../../../../libraries/utils/Strings.sol";
@@ -18,23 +18,29 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
     address public constant aggregateModuleAddress = address(0xEE3c65B5c7F4DD0ebeD8bF046725e273e3eeeD3c);
     address public constant packetContractAddress = address(0x0000000000000000000000000000000020000001);
 
-    // token come in
+    // tokens come in
     address[] public override boundTokens;
+    // token source chains
     mapping(address => string[]) public boundTokenSources;
-    mapping(string => TokenBindingTypes.Binding) public bindings; // mapping(token/origin_chain => Binding)
-    mapping(string => address) public override bindingTraces; // mapping(origin_chain/origin_token => token)
+    // key: $tokenAddress/$oriChain)
+    mapping(string => TokenBindingTypes.Binding) public bindings;
+    // key: $oriChain/$oriToken
+    mapping(string => address) public override bindingTraces;
 
     // token out. use address(0) as base token address
-    mapping(address => mapping(string => uint256)) public override outTokens; // mapping(token, mapping(dst_chain => amount))
+    // mapping(token, mapping($dstChain => amount))
+    mapping(address => mapping(string => uint256)) public override outTokens;
 
     // time based supply limit
-    mapping(address => TokenBindingTypes.TimeBasedSupplyLimit) public limits; // mapping(token => TimeBasedSupplyLimit)
+    mapping(address => TokenBindingTypes.TimeBasedSupplyLimit) public limits;
 
+    // only xibc aggregate module can perform related transactions
     modifier onlyXIBCModuleAggregate() {
         require(msg.sender == address(aggregateModuleAddress), "caller must be xibc aggregate module");
         _;
     }
 
+    // only xibc packet contract can perform related transactions
     modifier onlyPacket() {
         require(msg.sender == packetContractAddress, "caller must be packet contract");
         _;
@@ -57,21 +63,17 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
             !oriChain.equals(IPacket(packetContractAddress).chainName()),
             "oriChain can't equal to nativeChainName"
         );
-        string memory bindingKey = Strings.strConcat(Strings.strConcat(tokenAddress.addressToString(), "/"), oriChain);
+        string memory bindingKey = string.concat(tokenAddress.addressToString(), "/", oriChain);
         if (bindings[bindingKey].bound) {
             // rebind
-            string memory rebindKey = Strings.strConcat(
-                Strings.strConcat(oriChain, "/"),
-                bindings[bindingKey].oriToken
-            );
+            string memory rebindKey = string.concat(oriChain, "/", bindings[bindingKey].oriToken);
             delete bindingTraces[rebindKey];
         } else {
             boundTokens.push(tokenAddress);
             boundTokenSources[tokenAddress].push(oriChain);
         }
 
-        string memory traceKey = Strings.strConcat(Strings.strConcat(oriChain, "/"), oriToken);
-
+        string memory traceKey = string.concat(oriChain, "/", oriToken);
         bindings[bindingKey] = TokenBindingTypes.Binding({
             oriChain: oriChain,
             oriToken: oriToken,
@@ -147,7 +149,9 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
     }
 
     /**
-     * @notice todo
+     * @notice send cross chain call
+     * @param crossChainData cross chain data
+     * @param fee cross chain fee
      */
     function crossChainCall(CrossChainDataTypes.CrossChainData memory crossChainData, PacketTypes.Fee memory fee)
         public
@@ -199,8 +203,9 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
             } else {
                 // transfer ERC20
 
-                string memory bindingKey = Strings.strConcat(
-                    Strings.strConcat(crossChainData.tokenAddress.addressToString(), "/"),
+                string memory bindingKey = string.concat(
+                    crossChainData.tokenAddress.addressToString(),
+                    "/",
                     crossChainData.dstChain
                 );
 
@@ -253,7 +258,8 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
     }
 
     /**
-     * @notice todo
+     * @notice onRecvPacket is called by XIBC packet module in order to receive & process an XIBC packet
+     * @param packet xibc packet
      */
     function onRecvPacket(PacketTypes.Packet calldata packet)
         external
@@ -273,13 +279,8 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
         uint256 amount = transferData.amount.toUint256();
         if (bytes(transferData.oriToken).length == 0) {
             // token come in
-            tokenAddress = bindingTraces[
-                Strings.strConcat(Strings.strConcat(packet.srcChain, "/"), transferData.token)
-            ];
-            string memory bindingKey = Strings.strConcat(
-                Strings.strConcat(tokenAddress.addressToString(), "/"),
-                packet.srcChain
-            );
+            tokenAddress = bindingTraces[string.concat(packet.srcChain, "/", transferData.token)];
+            string memory bindingKey = string.concat(tokenAddress.addressToString(), "/", packet.srcChain);
             uint256 realAmount = amount * 10**uint256(bindings[bindingKey].scale);
 
             // check bindings
@@ -327,6 +328,12 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
         return (0, "", "");
     }
 
+    /**
+     * @notice acknowledge packet in order to receive an XIBC acknowledgement
+     * @param code error code
+     * @param result packet execution result
+     * @param message error message
+     */
     function onAcknowledgementPacket(
         PacketTypes.Packet memory packet,
         uint64 code,
@@ -343,10 +350,7 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
 
             if (bytes(transferData.oriToken).length > 0) {
                 // refund crossed chain token back to origin
-                string memory bindingKey = Strings.strConcat(
-                    Strings.strConcat(transferData.token, "/"),
-                    packet.dstChain
-                );
+                string memory bindingKey = string.concat(transferData.token, "/", packet.dstChain);
                 uint256 realAmount = amount * 10**uint256(bindings[bindingKey].scale);
                 require(_mint(tokenAddress, sender, realAmount), "mint back to sender failed");
                 bindings[bindingKey].amount += realAmount;
@@ -376,7 +380,7 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
     // ===========================================================================
 
     /**
-     * @notice todo
+     * @notice burn escrow tokens
      */
     function _burn(
         address dstContract,
@@ -391,7 +395,7 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
     }
 
     /**
-     * @notice todo
+     * @notice mint cross chain tokens
      */
     function _mint(
         address dstContract,
@@ -408,7 +412,7 @@ contract Endpoint is IEndpoint, ReentrancyGuardUpgradeable {
     // ===========================================================================
 
     /**
-     * @notice todo
+     * @notice returns token binding by key. key: $tokenAddress/$oriChain
      */
     function getBindings(string calldata key) external view override returns (TokenBindingTypes.Binding memory) {
         return bindings[key];

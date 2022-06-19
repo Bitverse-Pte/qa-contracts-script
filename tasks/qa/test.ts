@@ -245,7 +245,7 @@ task("rAddPacketFee", "set packet fee")
 
 task("rSend", "Send Proxy")
     .addParam("proxy", "proxy 合约地址")
-
+    .addParam("refunder", "refunder address")
     .addParam("token", "源链转账的ERC20 token合约地址")
     .addParam("agent", "teleport的agent合约地址", "0x0000000000000000000000000000000040000001", types.string, true)
     .addParam("amount", "源链需要花费的总金额")
@@ -256,8 +256,8 @@ task("rSend", "Send Proxy")
     .addParam("dest", "目标链名称")
     .addParam("rccrelayerchain", "relay chain name", "", types.string, true)
 
-    .addParam("fee", "需要消耗的fee")
-    .addParam("endpoint", "endpoint 合约地址")
+    .addParam("fee", "需要消耗的fee relay fee")
+    .addParam("multicall", "multicall 合约地址")
 
     // .addParam("relayer_fee_address", "relay fee token address")
     .setAction(async (taskArgs, hre) => {
@@ -280,11 +280,10 @@ task("rSend", "Send Proxy")
 
         let refunder = taskArgs.receiver
         let destchain = "teleport"
-        let multiCallData = await proxy.send(refunder, destchain,
-            ERC20TransferData, rccTransfer, taskArgs.fee)
+        let multiCallData = await proxy.send(refunder, destchain, ERC20TransferData, rccTransfer, taskArgs.fee)
 
-        const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
-        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
+        const multicallFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
+        const multicall = await multicallFactory.attach(taskArgs.multicall)
 
         let res: any
         let relayer_fee_amount = 0
@@ -296,15 +295,14 @@ task("rSend", "Send Proxy")
                 tokenAddress: "0x0000000000000000000000000000000000000000",
                 amount: relayer_fee_amount,
             }
-            res = await endpoint.crossChainCall(multiCallData, fee, {value: taskArgs.amount})
+            res = await multicall.crossChainCall(multiCallData, fee, {value: taskArgs.amount})
         } else {
             console.log("transfer erc20")
 
             let fee = {
-                tokenAddress: relayer_fee_address,
-                amount: relayer_fee_amount,
+                tokenAddress: relayer_fee_address,                amount: relayer_fee_amount,
             }
-            res = await endpoint.crossChainCall(multiCallData, fee)
+            res = await multicall.crossChainCall(multiCallData, fee)
 
         }
         console.log("tx hash: ", res.hash)
