@@ -257,7 +257,7 @@ task("rSend", "Send Proxy")
     .addParam("rccrelayerchain", "relay chain name", "", types.string, true)
 
     .addParam("fee", "需要消耗的fee relay fee")
-    .addParam("multicall", "multicall 合约地址")
+    .addParam("endpoint", "endpoint 合约地址")
 
     // .addParam("relayer_fee_address", "relay fee token address")
     .setAction(async (taskArgs, hre) => {
@@ -282,27 +282,26 @@ task("rSend", "Send Proxy")
         let destchain = "teleport"
         let multiCallData = await proxy.send(refunder, destchain, ERC20TransferData, rccTransfer, taskArgs.fee)
 
-        const multicallFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
-        const multicall = await multicallFactory.attach(taskArgs.multicall)
+        const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
+        const endpoint = await endpointFactory.attach(taskArgs.endpoint)
 
         let res: any
         let relayer_fee_amount = 0
         let relayer_fee_address = taskArgs.token
         if (ERC20TransferData.tokenAddress == "0x0000000000000000000000000000000000000000") {
             console.log("transfer base")
-
             let fee = {
                 tokenAddress: "0x0000000000000000000000000000000000000000",
                 amount: relayer_fee_amount,
             }
-            res = await multicall.crossChainCall(multiCallData, fee, {value: taskArgs.amount})
+            res = await endpoint.crossChainCall(multiCallData, fee, {value: taskArgs.amount})
         } else {
             console.log("transfer erc20")
-
             let fee = {
-                tokenAddress: relayer_fee_address,                amount: relayer_fee_amount,
+                tokenAddress: relayer_fee_address,
+                amount: relayer_fee_amount,
             }
-            res = await multicall.crossChainCall(multiCallData, fee)
+            res = await endpoint.crossChainCall(multiCallData, fee)
 
         }
         console.log("tx hash: ", res.hash)
