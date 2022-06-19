@@ -275,8 +275,8 @@ task("rSend", "Send Proxy")
         console.log("agentData:",agentData)
         let refunder = taskArgs.receiver
         let destchain = "teleport"
-        let multiCallData = await proxy.genCrossChainData(agentData)
-        console.log("multiCallData:",multiCallData)
+        let crossChainData = await proxy.genCrossChainData(agentData)
+        console.log("crossChainData:",crossChainData)
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
         const endpoint = await endpointFactory.attach(taskArgs.endpoint)
         console.log("endpoint:",taskArgs.endpoint)
@@ -289,14 +289,14 @@ task("rSend", "Send Proxy")
                 tokenAddress: "0x0000000000000000000000000000000000000000",
                 amount: relayer_fee_amount,
             }
-            res = await endpoint.crossChainCall(multiCallData, fee, {value: taskArgs.amount})
+            res = await endpoint.crossChainCall(crossChainData, fee, {value: taskArgs.amount})
         } else {
             console.log("transfer erc20")
             let fee = {
                 tokenAddress: relayer_fee_address,
                 amount: relayer_fee_amount,
             }
-            res = await endpoint.crossChainCall(multiCallData, fee)
+            res = await endpoint.crossChainCall(crossChainData, fee)
 
         }
         console.log("tx hash: ", res.hash)
