@@ -246,7 +246,6 @@ task("rAddPacketFee", "set packet fee")
 task("rSend", "Send Proxy")
     .addParam("proxy", "proxy 合约地址")
     .addParam("token", "源链转账的ERC20 token合约地址")
-    .addParam("agent", "teleport的agent合约地址", "0x0000000000000000000000000000000040000001", types.string, true)
     .addParam("amount", "源链需要花费的总金额")
 
     .addParam("rcctoken", "二跳的token, teleport上对应的token合约地址")
@@ -270,8 +269,8 @@ task("rSend", "Send Proxy")
             amount :taskArgs.amount,// amount to send, decimal precision should be same as srcChain
             feeAmount :taskArgs.fee, // second hop fee amount, take from amount, decimal precision should be same as srcChain
             receiver :taskArgs.receiver, // token receiver on dst chain, not relay chain
-            callbackAddress :taskArgs.agent, // first hop ack callback address
-            feeOption :222,
+            callbackAddress :"0x0000000000000000000000000000000000000000", // first hop ack callback address
+            feeOption :0,//暂时未使用
         }
         console.log("agentData:",agentData)
         let refunder = taskArgs.receiver
