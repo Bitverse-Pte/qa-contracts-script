@@ -263,23 +263,19 @@ task("rSend", "Send Proxy")
         const ProxyFactory = await hre.ethers.getContractFactory('Proxy')
         const proxy = await ProxyFactory.attach(taskArgs.proxy)
 
-        let ERC20TransferData = {
-            tokenAddress: taskArgs.token,
-            receiver: taskArgs.agent,
-            amount: taskArgs.amount,
+        let agentData = {
+            refundAddress: taskArgs.receiver, // refund address on relay chain
+            dstChain :taskArgs.dest, // dst chain, not relay chain
+            tokenAddress :taskArgs.token, // token on src chain
+            amount :taskArgs.amount,// amount to send, decimal precision should be same as srcChain
+            feeAmount :taskArgs.fee, // second hop fee amount, take from amount, decimal precision should be same as srcChain
+            receiver :taskArgs.receiver, // token receiver on dst chain, not relay chain
+            //callbackAddress :callbackAddress, // first hop ack callback address
+            //feeOption :feeOption,
         }
 
-        let rccTransfer = {
-            tokenAddress: taskArgs.rcctoken,
-            receiver: taskArgs.receiver,
-            amount: taskArgs.rccamount,
-            destChain: taskArgs.dest,
-            relayChain: taskArgs.rccrelayerchain,
-        }
-
-        let refunder = taskArgs.receiver
         let destchain = "teleport"
-        let multiCallData = await proxy.genCrossChainData(refunder, destchain, ERC20TransferData, rccTransfer, taskArgs.fee)
+        let multiCallData = await proxy.genCrossChainData(agentData)
 
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
         const endpoint = await endpointFactory.attach(taskArgs.endpoint)
@@ -287,7 +283,7 @@ task("rSend", "Send Proxy")
         let res: any
         let relayer_fee_amount = 0
         let relayer_fee_address = taskArgs.token
-        if (ERC20TransferData.tokenAddress == "0x0000000000000000000000000000000000000000") {
+        if (taskArgs.token == "0x0000000000000000000000000000000000000000") {
             console.log("transfer base")
             let fee = {
                 tokenAddress: "0x0000000000000000000000000000000000000000",
