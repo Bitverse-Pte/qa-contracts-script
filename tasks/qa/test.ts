@@ -245,7 +245,6 @@ task("rAddPacketFee", "set packet fee")
 
 task("rSend", "Send Proxy")
     .addParam("proxy", "proxy 合约地址")
-    .addParam("refunder", "refunder address")
     .addParam("token", "源链转账的ERC20 token合约地址")
     .addParam("agent", "teleport的agent合约地址", "0x0000000000000000000000000000000040000001", types.string, true)
     .addParam("amount", "源链需要花费的总金额")
@@ -254,7 +253,7 @@ task("rSend", "Send Proxy")
     .addParam("receiver", "收款及refunder的wallet地址")
     .addParam("rccamount", "二跳的转账金额，即实际到账金额")
     .addParam("dest", "目标链名称")
-    .addParam("rccrelayerchain", "relay chain name", "", types.string, true)
+    .addParam("rccrelayerchain", "relay chain name", "teleport", types.string, true)
 
     .addParam("fee", "需要消耗的fee relay fee")
     .addParam("endpoint", "endpoint 合约地址")
@@ -280,7 +279,7 @@ task("rSend", "Send Proxy")
 
         let refunder = taskArgs.receiver
         let destchain = "teleport"
-        let multiCallData = await proxy.send(refunder, destchain, ERC20TransferData, rccTransfer, taskArgs.fee)
+        let multiCallData = await proxy.genCrossChainData(refunder, destchain, ERC20TransferData, rccTransfer, taskArgs.fee)
 
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
         const endpoint = await endpointFactory.attach(taskArgs.endpoint)
