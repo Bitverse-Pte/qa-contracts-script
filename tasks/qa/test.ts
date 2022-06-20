@@ -257,7 +257,6 @@ task("rSend", "Send Proxy")
     .addParam("fee", "需要消耗的fee relay fee")
     .addParam("endpoint", "endpoint 合约地址")
 
-    // .addParam("relayer_fee_address", "relay fee token address")
     .setAction(async (taskArgs, hre) => {
         const ProxyFactory = await hre.ethers.getContractFactory('Proxy')
         const proxy = await ProxyFactory.attach(taskArgs.proxy)
@@ -273,8 +272,6 @@ task("rSend", "Send Proxy")
             feeOption :0,//暂时未使用
         }
         console.log("agentData:",agentData)
-        let refunder = taskArgs.receiver
-        let destchain = "teleport"
         let crossChainData = await proxy.genCrossChainData(agentData)
         console.log("crossChainData:",crossChainData)
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
