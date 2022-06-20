@@ -246,16 +246,11 @@ task("rAddPacketFee", "set packet fee")
 task("rSend", "Send Proxy")
     .addParam("proxy", "proxy 合约地址")
     .addParam("token", "源链转账的ERC20 token合约地址")
-    .addParam("amount", "源链需要花费的总金额")
-
-    .addParam("rcctoken", "二跳的token, teleport上对应的token合约地址")
+    .addParam("amount", "转出金额")
     .addParam("receiver", "收款及refunder的wallet地址")
-    .addParam("rccamount", "二跳的转账金额，即实际到账金额")
     .addParam("dest", "目标链名称")
-
     .addParam("fee", "需要消耗的fee relay fee")
     .addParam("endpoint", "endpoint 合约地址")
-
     .setAction(async (taskArgs, hre) => {
         const ProxyFactory = await hre.ethers.getContractFactory('Proxy')
         const proxy = await ProxyFactory.attach(taskArgs.proxy)
