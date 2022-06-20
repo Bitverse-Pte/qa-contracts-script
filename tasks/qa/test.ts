@@ -252,7 +252,6 @@ task("rSend", "Send Proxy")
     .addParam("receiver", "收款及refunder的wallet地址")
     .addParam("rccamount", "二跳的转账金额，即实际到账金额")
     .addParam("dest", "目标链名称")
-    .addParam("rccrelayerchain", "relay chain name", "teleport", types.string, true)
 
     .addParam("fee", "需要消耗的fee relay fee")
     .addParam("endpoint", "endpoint 合约地址")

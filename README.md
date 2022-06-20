@@ -2,9 +2,9 @@
 ``` 
 1,initDatas.py初始化脚本，更新研发合约代码
 2,npm install(或yarn install)首次使用需要拉取依赖
-3,npx hardhat compile （最好先clean）编译
+3,npx hardhat compile （有更新先clean）编译
 ``` 
-### 注释npm 代理
+### npm 代理包
 ``` 
 npm install -g nrm
 nrm ls
@@ -12,12 +12,7 @@ nrm use taobao
 ``` 
 ``` 
 https://github.com/teleport-network/Contracts/tree/upgrade/Teleport_QA
-``` 
-
-### teleport-bridge：
 ```
-你说的 
-``` 
 
 ### 目录：
 ``` 
@@ -48,3 +43,16 @@ export EXECUTE_ADDRESS=0xee3ff0ca55e699a2722545a6b05146d135b4b33b
 回归测试：https://c1ey4wdv9g.larksuite.com/wiki/wikuskZLPmDixwhqMhPpIYoPtyb
 主页面测试：https://c1ey4wdv9g.larksuite.com/wiki/wikusl69Vtr6pRMEn0FZKbUyD1b
 ``` 
+
+### teleport 查询packet接受情况
+``` 
+teleport q xibc packet packet-receipt rinkeby teleport 48 --node http://abd46ec6e28754f0ab2aae29deaa0c11-1510914274.ap-southeast-1.elb.amazonaws.com:26657
+```
+
+## hardhat 缩写 补全使用
+``` 
+# hh安装，hh代替npx hardhat,需要全局安装 
+npm i -g hardhat-shorthand 
+# hardhat-shorthand 补全提示，全局安装，选择zsh
+npm hardhat-completion install 
+```
