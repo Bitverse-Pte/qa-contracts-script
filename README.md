@@ -43,23 +43,8 @@ export PACKET_ADDRESS=0xf77f90a902a5cb5b0e1ade83b2e8c5298a26be0a
 export ENDPOINT_ADDRESS=0xc6504d78a1da561adbb8d34e2d9f7b2e8b255bc7
 export EXECUTE_ADDRESS=0xee3ff0ca55e699a2722545a6b05146d135b4b33b
 ```
-### 示例脚本
+### 脚本参考文档
 ``` 
-流通性查询 
-原evm
-npx hardhat queryBindingsEvm --endpoint 0xe4916fd50499601dfe4fd2b40ee6d93a8035fcab  --token 0x2b2454ad0c2142bd02ff38d8728c022a4a90feb7 --network rinkeby
-原teleport
-npx hardhat queryBindingsTp --endpoint 0x0000000000000000000000000000000020000002 --token 0x0000000000000000000000000000000000000000 --network teleport
-获取交易凭证
-npx hardhat getHash --hash 0x7cce144661213a07405cf2afed2857804a02e79013452a9a062b44dc01d3d5b9 --network teleport
-执行交易 原transfer替换endpoint合约
-npx hardhat rTransfer --tokenaddress 0x0000000000000000000000000000000000000000 --receiver 0x68949B0eF5dE6087c64947bcA6c749e89B6a8bD9 --amount 1 --dstchain rinkeby --fees 0 --endpoint 0x0000000000000000000000000000000020000002 --network teleport
-
-非teleport设置风控
-/**设置风控*/
-npx hardhat enLimits --endpoint 0xfe30de51bdb9b9784f1a05d5531d221bf66eaf70 --token 0x44de7218b9f7a205084466d9ad7f438ec30dc192 --tp 60 --tb 200000 --max 500 --min 100 --network bsctest
-/**查询风控信息*/
-npx hardhat qLimits --endpoint 0xfe30de51bdb9b9784f1a05d5531d221bf66eaf70 --token 0x44de7218b9f7a205084466d9ad7f438ec30dc192 --network bsctest
-/**取消风控*/
-npx hardhat unLimits --endpoint 0xfe30de51bdb9b9784f1a05d5531d221bf66eaf70 --token 0x44de7218b9f7a205084466d9ad7f438ec30dc192 --network bsctest
+回归测试：https://c1ey4wdv9g.larksuite.com/wiki/wikuskZLPmDixwhqMhPpIYoPtyb
+主页面测试：https://c1ey4wdv9g.larksuite.com/wiki/wikusl69Vtr6pRMEn0FZKbUyD1b
 ``` 
