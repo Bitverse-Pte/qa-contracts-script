@@ -56,3 +56,7 @@ npm i -g hardhat-shorthand
 # hardhat-shorthand 补全提示，全局安装，选择zsh
 npm hardhat-completion install 
 ```
+## geReason.js 根据交易hash 查询是否存在错误 r代表环境
+``` 
+node getrReason.js r 0x2ca3003b230c5addc5e1124a5ef90bf5a852ae16f40658602fdf815d2f80c07a
+```
