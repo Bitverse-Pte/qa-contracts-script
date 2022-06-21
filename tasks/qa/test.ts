@@ -254,23 +254,21 @@ task("rSend", "Send Proxy")
     .setAction(async (taskArgs, hre) => {
         const ProxyFactory = await hre.ethers.getContractFactory('Proxy')
         const proxy = await ProxyFactory.attach(taskArgs.proxy)
-        console.log("proxy:",taskArgs.proxy)
         let agentData = {
-            refundAddress: taskArgs.receiver, // refund address on relay chain
-            dstChain :taskArgs.dest, // dst chain, not relay chain
-            tokenAddress :taskArgs.token, // token on src chain
-            amount :taskArgs.amount,// amount to send, decimal precision should be same as srcChain
-            feeAmount :taskArgs.fee, // second hop fee amount, take from amount, decimal precision should be same as srcChain
-            receiver :taskArgs.receiver, // token receiver on dst chain, not relay chain
-            callbackAddress :"0x0000000000000000000000000000000000000000", // first hop ack callback address
+            refundAddress: taskArgs.receiver,
+            dstChain :taskArgs.dest,
+            tokenAddress :taskArgs.token,
+            amount :taskArgs.amount,
+            feeAmount :taskArgs.fee,
+            receiver :taskArgs.receiver,
+            callbackAddress :"0x0000000000000000000000000000000000000000",
             feeOption :0,//暂时未使用
         }
-        console.log("agentData:",agentData)
+        //console.log("agentData:",agentData)
         let crossChainData = await proxy.genCrossChainData(agentData)
-        console.log("crossChainData:",crossChainData)
+        //console.log("crossChainData:",crossChainData)
         const endpointFactory = await hre.ethers.getContractFactory('contracts/chains/02-evm/core/endpoint/Endpoint.sol:Endpoint')
         const endpoint = await endpointFactory.attach(taskArgs.endpoint)
-        console.log("endpoint:",taskArgs.endpoint)
         let res: any
         let relayer_fee_amount = 0
         let relayer_fee_address = taskArgs.token
@@ -288,7 +286,6 @@ task("rSend", "Send Proxy")
                 amount: relayer_fee_amount,
             }
             res = await endpoint.crossChainCall(crossChainData, fee)
-
         }
         console.log("tx hash: ", res.hash)
         console.log("time: ", (new Date()).valueOf())
