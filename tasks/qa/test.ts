@@ -401,4 +401,17 @@ task("getHash","获取交易凭证信息")
 
     });
 
+task("burnFrom", "燃烧销毁资产")
+    .addParam("token", "erc20token地址")
+    .addParam("account", "授权账户address")
+    .addParam("amount", "金额")
+    .setAction(async (taskArgs, hre) => {
+        // 查询代币余额
+        const tokenFactory = await hre.ethers.getContractFactory('TestERC20MinterBurnerDecimals')
+        const token = await tokenFactory.attach(taskArgs.token)
+        const  ret =await token.burnFrom(taskArgs.from,taskArgs.amount)
+        console.log("ret: ", ret)
+        console.log("time: ", (new Date()).valueOf())
+    });
+
 module.exports = {}
