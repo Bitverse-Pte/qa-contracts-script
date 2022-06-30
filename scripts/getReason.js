@@ -33,7 +33,6 @@ async function reason() {
             let codeStr = ethers.utils.toUtf8String('0x' + code.substr(138));
             console.log('codeStr:', codeStr);
           } catch (err) {
-            console.log('err:', err);
             const code = err.data.replace('Reverted ','');
             let reason = ethers.utils.toUtf8String('0x' + code.substr(138));
             console.log('revert reason:', reason);
