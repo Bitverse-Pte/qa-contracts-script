@@ -16,27 +16,17 @@ async function reason() {
     var args = process.argv.slice(2)
 
     // console.log(await getRevertReason(args[1], network, blockNumber, provider))
-
     let url = args[0]
     console.log('WEB3_URL:', web3.get(url))
     let provider = new ethers.providers.JsonRpcProvider(web3.get(url))
-
     let hash = args[1]
     console.log('tx hash:', hash)
-
-    let tx = await provider.getTransaction(hash)
-    if (!tx) {
-        console.log('tx not found')
-    } else {
-        try {
-            let code = await provider.call(tx, tx.blockNumber)
-            let codeStr = ethers.utils.toUtf8String('0x' + code.substr(138));
-            console.log('codeStr:', codeStr);
-          } catch (err) {
-            const code = err.data.replace('Reverted ','');
-            let reason = ethers.utils.toUtf8String('0x' + code.substr(138));
-            console.log('revert reason:', reason);
-          }
+    let transactionReceipt = await provider.getTransactionReceipt(hash)
+    if (transactionReceipt.status != 1) {
+        let tx = await provider.getTransaction(hash)
+        let code = await provider.call(tx, tx.blockNumber)
+        let codeStr = ethers.utils.toUtf8String('0x' + code.substr(138));
+        console.log('errCodeStr:', codeStr);
     }
 }
 
